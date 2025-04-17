@@ -1,4 +1,4 @@
-name: Build .NET App
+name: Build Only
 
 on:
   workflow_dispatch:
