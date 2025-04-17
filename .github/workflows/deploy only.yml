@@ -14,6 +14,8 @@ jobs:
     environment:
       name: 'Development'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}  # The URL of your deployed app
+    env:
+      AZURE_WEBAPP_NAME: 'mygoogootz'  # Define your Azure Web App name here
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
@@ -29,5 +31,5 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}  # Azure App Service name, ensure this is set correctly in your repo secrets or env
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}  # Reference the environment variable here
           package: .  # Points to the current directory where the artifact was downloaded
