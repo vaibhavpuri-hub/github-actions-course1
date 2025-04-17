@@ -26,7 +26,7 @@ jobs:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
-          name: .net-app  # Ensure artifact name matches what was uploaded in the build job
+          name: .net-app.zip  # Ensure artifact name matches what was uploaded in the build job
 
       - name: Azure Login
         uses: azure/login@v1
