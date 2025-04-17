@@ -8,25 +8,26 @@ on:
 
 jobs:
   deploy:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}  # Ensures deploy only if build is successful
     runs-on: ubuntu-latest
-    environment: production  # This will require approval before running the deployment
+    needs: build  # Ensures deploy job only runs after build job
+    environment:
+      name: 'Development'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}  # The URL of your deployed app
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up Azure CLI
-        uses: azure/setup-azure-cli@v1
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
         with:
-          azcliversion: '2.34.0'  # Adjust to the version of Azure CLI you need
+          name: .net-app  # Ensure artifact name matches what was uploaded in the build job
 
       - name: Azure Login
         uses: azure/login@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}  # Ensure you have your Azure credentials in GitHub Secrets
+          creds: ${{ secrets.AZURE_CREDENTIALS }}  # Azure credentials stored in GitHub Secrets
 
-      - name: Deploy to Azure App Service
-        run: |
-          echo "Deploying to Azure App Service..."
-          # Replace with your actual Azure deployment command, e.g.
-          az webapp up --name <your-app-name> --resource-group <your-resource-group> --plan <your-app-service-plan>
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}  # Azure App Service name, ensure this is set correctly in your repo secrets or env
+          package: .  # Points to the current directory where the artifact was downloaded
